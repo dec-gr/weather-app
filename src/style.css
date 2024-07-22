@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "SpaceGrotesk";
+  src: url("./SpaceGrotesk-Regular.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+.hello {
+  color: red;
+  background: url("./icon.png");
+  font-family: "SpaceGrotesk";
+  font-size: 50px;
+}

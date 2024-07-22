@@ -1,0 +1,29 @@
+{
+  "name": "odin-template",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specific\" && exit 1",
+    "watch": "webpack --watch",
+    "start": "webpack serve --open --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "css-loader": "^7.1.2",
+    "eslint-config-airbnb": "^19.0.4",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.92.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4",
+    "webpack-merge": "^6.0.1"
+  },
+  "dependencies": {
+    "eslint": "^7.32.0",
+    "lodash": "^4.17.21"
+  }
+}
