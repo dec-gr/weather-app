@@ -1,12 +1,12 @@
 import './style.css';
-import sunnyDayIcon from './images/sunnyDay.svg';
-import cloudyDayIcon from './images/cloudyDay.svg';
-import rainyDayIcon from './images/rainyDay.svg';
-import rainWithSunIcon from './images/rainWithSun.svg';
+import sunnyDayIcon from './images/sunnyDayAnimated.svg';
+import cloudyDayIcon from './images/cloudyDayAnimated.svg';
+import rainyDayIcon from './images/rainyDayAnimated.svg';
+import rainWithSunIcon from './images/rainWithSunAnimated.svg';
 
 const API_KEY = '';
 const location = 'Dublin';
-const unitGroup = 'metric';
+let unitGroup = 'metric';
 
 const getDayFromDate = (dateString) => {
   const date = new Date(dateString);
@@ -14,34 +14,74 @@ const getDayFromDate = (dateString) => {
 };
 
 const fetchForecast = async (url) => {
-  const weatherResponse = await fetch(url, { mode: 'cors' });
-  const weatherJson = await weatherResponse.json();
-  const weeklyObj = weatherJson.days.map((x) => ({
-    day: getDayFromDate(x.datetime),
-    max: x.tempmax,
-    min: x.tempmin,
-    precip: x.precipprob,
-    cloud: x.cloudcover,
-  }));
-  return weeklyObj;
+  try {
+    const weatherResponse = await fetch(url, { mode: 'cors' });
+    console.log(weatherResponse);
+    const weatherJson = await weatherResponse.json();
+    const weeklyObj = weatherJson.days.map((x) => ({
+      day: getDayFromDate(x.datetime),
+      max: x.tempmax,
+      min: x.tempmin,
+      precip: x.precipprob,
+      cloud: x.cloudcover,
+    }));
+    return weeklyObj;
+  } catch (err) {
+    console.log(err);
+    return 'no data';
+  }
 };
 
 const createUrl = (loc, unit, api) =>
   `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${loc}?unitGroup=${unit}&elements=datetime%2Ctempmax%2Ctempmin%2Ctemp%2Cprecipprob%2Ccloudcover&include=hours%2Cdays&key=${api}&contentType=json`;
 
-const getForecast = async (loc, unit, api) => {
+const getForecastData = async (loc, unit, api) => {
   const url = createUrl(loc, unit, api);
-  const weeklyObj = await fetchForecast(url);
-  console.log(weeklyObj);
-  return weeklyObj;
+  const forecastObj = await fetchForecast(url);
+  // const todaysForecast = weeklyObj[0];
+  // const next10days = weeklyObj.slice(1, 11);
+  // console.log(todaysForecast);
+  // console.log(next10days);
+  // console.log(weeklyObj.slice(1));
+  // console.log(weeklyObj[0;])
+  return forecastObj;
 };
 
-getForecast(location, unitGroup, API_KEY).then((result) => {
-  result.forEach((day) => {
-    console.log(day);
-    addDay(day.day, day.max, day.min, day.precip);
-  });
-});
+const getForecasts = async (loc, unit, api) => {
+  const forecastObj = await getForecastData(loc, unit, api);
+  if (forecastObj === 'no data') {
+    return;
+  }
+  const todaysForecast = forecastObj[0];
+  console.log(todaysForecast);
+  const next10days = forecastObj.slice(1, 11);
+  const todaysForecastDiv = document.querySelector('.todayCont');
+  if (todaysForecastDiv) {
+    todaysForecastDiv.remove();
+  }
+  addTodaysForecast(
+    todaysForecast.day,
+    todaysForecast.max,
+    todaysForecast.min,
+    todaysForecast.precip,
+    todaysForecast.cloud
+  );
+  const futureForecastDivs = document.querySelectorAll('.dayCont');
+  if (futureForecastDivs) {
+    futureForecastDivs.forEach((day) => day.remove());
+  }
+  // (day, max, min, precip, cloud)
+  next10days.forEach((day) => addDay(day.day, day.max, day.min, day.precip));
+};
+
+getForecasts(location, unitGroup, API_KEY);
+
+// getForecast(location, unitGroup, API_KEY).then((result) => {
+//   result.forEach((day) => {
+//     console.log(day);
+//     addDay(day.day, day.max, day.min, day.precip);
+//   });
+// });
 
 //sunnyDayIcon.classList.toggle('hide');
 
@@ -100,11 +140,68 @@ const createDay = (day, max, min, precip) => {
   return dayCont;
 };
 
-const docBody = document.querySelector('.weeklyForecastCont');
+const todaysForecastCont = document.querySelector('.todaysForecastCont');
+
+const createTodaysForecast = (day, max, min, precip, cloud) => {
+  const todayCont = document.createElement('div');
+  todayCont.classList.add('todayCont');
+
+  const todayTitle = document.createElement('div');
+  todayTitle.classList.add('todayTitle');
+  todayTitle.textContent = day;
+
+  const todayMax = document.createElement('div');
+  todayMax.classList.add('todayMax');
+  todayMax.textContent = max;
+
+  const todayMin = document.createElement('div');
+  todayMin.classList.add('todayMin');
+  todayMin.textContent = min;
+
+  const todayPrecip = document.createElement('div');
+  todayPrecip.classList.add('todayPrecip');
+  todayPrecip.textContent = precip;
+
+  const todayCloud = document.createElement('div');
+  todayCloud.classList.add('todayCloud');
+  todayCloud.textContent = cloud;
+
+  const iconCont = document.createElement('div');
+  iconCont.classList.add('iconCont', 'todayIcon');
+
+  const iconSVG = document.createElement('img');
+
+  const iconName = getIconName(max, precip);
+  const icon = getIcon(iconName);
+  iconSVG.src = icon;
+  iconSVG.classList.add('weatherIcon');
+
+  todayCont.appendChild(todayTitle);
+  todayCont.appendChild(todayMax);
+  todayCont.appendChild(todayMin);
+
+  todayCont.appendChild(todayPrecip);
+  todayCont.appendChild(todayCloud);
+
+  iconCont.appendChild(iconSVG);
+  todayCont.appendChild(iconCont);
+  console.log(todayCont);
+
+  return todayCont;
+};
+
+const addTodaysForecast = (day, max, min, precip, cloud) => {
+  const todayCont = createTodaysForecast(day, max, min, precip, cloud);
+
+  console.log(todaysForecastCont);
+  todaysForecastCont.appendChild(todayCont);
+};
+
+const weeklyForecastCont = document.querySelector('.weeklyForecastCont');
 
 const addDay = (day, max, min, precip) => {
   const newDayObj = createDay(day, max, min, precip);
-  docBody.appendChild(newDayObj);
+  weeklyForecastCont.appendChild(newDayObj);
 };
 
 const getIconName = (max, precipProb) => {
@@ -135,6 +232,18 @@ const getIcon = (iconName) => {
       return cloudyDayIcon;
   }
 };
+
+const searchBox = document.querySelector('#locationSearch');
+
+const searchBtn = document.querySelector('#submit');
+
+searchBtn.addEventListener('click', (event) => {
+  event.preventDefault();
+  const searchTerm = searchBox.value === '' ? null : searchBox.value;
+  if (!(searchBox.value === '' || searchBox.value === null)) {
+    getForecasts(searchTerm, unitGroup, API_KEY);
+  }
+});
 
 // import sunnyDayIcon from './images/sunnyDay.svg';
 // import cloudyDayIcon from './images/cloudyDay.svg';
