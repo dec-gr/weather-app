@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackInlineSVGPlugin = require('html-webpack-inline-svg-plugin');
 
 module.exports = {
   entry: './src/index.js',
@@ -10,11 +11,15 @@ module.exports = {
       filename: 'index.html',
       inject: 'body',
     }),
+    new HtmlWebpackInlineSVGPlugin({
+      runPreEmit: true,
+    }),
   ],
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
+    assetModuleFilename: 'images/[hash][ext][query]',
   },
 
   module: {

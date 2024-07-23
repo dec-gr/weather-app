@@ -1,0 +1,27 @@
+.weeklyForecastCont {
+  display: flex;
+}
+
+div {
+  border: solid red 1px;
+}
+
+.dayCont {
+  width: 100px;
+}
+
+.iconCont {
+  height: 50px;
+}
+
+.hide {
+  display: none;
+}
+
+.green {
+  color: blue;
+}
+
+/* .forecastIcon {
+  width: 100%;
+} */
