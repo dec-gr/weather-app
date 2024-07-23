@@ -6,27 +6,35 @@
     <title>Droplet</title>
   </head>
   <body>
-    <div class="searchForm">
-      <form>
-        <p>
-          <label for="locationSearch">Enter Location</label>
-          <input type="text" id="locationSearch" name="locationSearch" />
-        </p>
-        <p>
-          <button id="submit">Submit</button>
-        </p>
-      </form>
-    </div>
-    <div class="todaysForecastCont"></div>
-    <div class="weeklyForecastCont">
-      <!-- <div class="sun"></div> -->
-      <div class="dayCont">
-        <div>Wednesday</div>
+    <div class="appcont">
+      <div class="leftSideCont">
+        <div class="todaysForecastCont"></div>
 
-        <div>15C</div>
-        <div>10C</div>
-        <div class="iconCont">
-          <!-- <img
+        <div class="searchForm">
+          <form>
+            <p>
+              <input
+                type="text"
+                id="locationSearch"
+                name="locationSearch"
+                placeholder="Search Location"
+              />
+            </p>
+            <p>
+              <button id="submit">Submit</button>
+            </p>
+          </form>
+        </div>
+      </div>
+      <div class="weeklyForecastCont">
+        <!-- <div class="sun"></div> -->
+        <div class="dayCont">
+          <div>Wednesday</div>
+
+          <div>15C</div>
+          <div>10C</div>
+          <div class="iconCont">
+            <!-- <img
           inline
           src="src/images/sunnyDay.svg"
           class="weatherIcon sunnyDay"
@@ -36,11 +44,12 @@
           src="src/images/cloudyDay.svg"
           class="weatherIcon cloudyDay hide"
         /> -->
-          <img
-            inline
-            src="src/images/rainyDay.svg"
-            class="weatherIcon rainyDay hide"
-          />
+            <img
+              inline
+              src="src/images/rainyDay.svg"
+              class="weatherIcon rainyDay hide"
+            />
+          </div>
         </div>
       </div>
     </div>
