@@ -7,7 +7,7 @@ import rainWithSunIcon from './images/rainWithSunAnimated.svg';
 import umbrellaSunIcon from './images/umbrella-sunny.svg';
 import umbrellaRainIcon from './images/umbrella-rainy.svg';
 
-const API_KEY = '';
+const API_KEY = '8MJTB2Z52UL5NMJGFDMWJFHZF';
 let location = 'Dublin';
 let unitGroup = 'metric';
 let unitSymbol = '°C';
@@ -22,7 +22,17 @@ const fetchForecast = async (url) => {
   try {
     const weatherResponse = await fetch(url, { mode: 'cors' });
     console.log(weatherResponse);
+    console.log('Break1');
+    console.log(weatherResponse.status);
+
+    if (weatherResponse.status === 400) {
+      alert('Enter a real location');
+    } else if (weatherResponse.status === 401) {
+      alert('Error connecting to server');
+    }
+
     const weatherJson = await weatherResponse.json();
+    console.log('Break2');
     console.log(weatherJson);
     const resolvedAddress = weatherJson.resolvedAddress;
     const weeklyObj = weatherJson.days.map((x) => ({
@@ -35,8 +45,9 @@ const fetchForecast = async (url) => {
     }));
     return [weeklyObj, resolvedAddress];
   } catch (err) {
+    console.log('Fetch Error');
     console.log(err);
-    return 'no data';
+    return ['no data', 'no address'];
   }
 };
 
@@ -45,24 +56,35 @@ const createUrl = (loc, unit, api) =>
 
 const getForecastData = async (loc, unit, api) => {
   const url = createUrl(loc, unit, api);
-  const forecastObj = await fetchForecast(url);
+  try {
+    const forecastObj = await fetchForecast(url);
+    console.log('try f');
+    console.log(forecastObj);
+    return forecastObj;
+  } catch (err) {
+    console.log('Get Error');
+    console.log(err);
+    return 'no data';
+  }
   // const todaysForecast = weeklyObj[0];
   // const next10days = weeklyObj.slice(1, 11);
   // console.log(todaysForecast);
   // console.log(next10days);
   // console.log(weeklyObj.slice(1));
   // console.log(weeklyObj[0;])
-  return forecastObj;
 };
 
 const getForecasts = async (loc, unit, api) => {
   const [forecastObj, resolvedAddress] = await getForecastData(loc, unit, api);
+  console.log('forecastObj:');
+  console.log(forecastObj);
   if (forecastObj === 'no data') {
+    console.log('BEep boop');
     return;
   }
   location = resolvedAddress;
   const todaysForecast = forecastObj[0];
-  console.log(todaysForecast);
+  //console.log(todaysForecast);
   const next10days = forecastObj.slice(1, 8);
   const todaysForecastDiv = document.querySelector('.todayCont');
   if (todaysForecastDiv) {
@@ -102,16 +124,16 @@ getForecasts(location, unitGroup, API_KEY);
 //sunnyDayIcon.classList.toggle('hide');
 
 const setIcon = (dayCont, iconClass) => {
-  console.log(dayCont);
+  //console.log(dayCont);
   const icons = dayCont.querySelectorAll('svg');
   const activeIcon = dayCont.querySelector(`.${iconClass}`);
   icons.forEach((icon) => icon.classList.add('hide'));
   activeIcon.classList.remove('hide');
 };
 
-const dayCont = document.querySelector('.dayCont');
+//const dayCont = document.querySelector('.dayCont');
 
-setIcon(dayCont, 'rainyDay');
+//setIcon(dayCont, 'rainyDay');
 
 // const svg = document.createElement('img');
 // svg.src = Icon;
@@ -152,11 +174,11 @@ const rightSideCont = document.querySelector('.rightSideCont');
 const addPrecipForecast = (precip) => {
   const precipCont = createPrecipForecast(precip);
   rightSideCont.appendChild(precipCont);
-  console.log(precipCont);
+  //console.log(precipCont);
 };
 
 const createDay = (day, max, min, precip) => {
-  console.log(precip);
+  //console.log(precip);
   const dayCont = document.createElement('div');
   dayCont.classList.add('dayCont');
 
@@ -255,7 +277,7 @@ const createTodaysForecast = (
 
   iconCont.appendChild(iconSVG);
   todayCont.appendChild(iconCont);
-  console.log(todayCont);
+  //console.log(todayCont);
 
   return todayCont;
 };
@@ -269,7 +291,7 @@ const addTodaysForecast = (day, max, precip, temp, resolvedAddress) => {
     resolvedAddress
   );
 
-  console.log(todaysForecastCont);
+  //console.log(todaysForecastCont);
   todaysForecastCont.appendChild(todayCont);
 };
 
@@ -281,7 +303,7 @@ const addDay = (day, max, min, precip) => {
 };
 
 const getIconName = (max, precipProb) => {
-  console.log(precipProb);
+  //console.log(precipProb);
   if (precipProb >= 40) {
     if (max >= sunnyDayThreshold) {
       return 'rainWithSun';
@@ -357,7 +379,7 @@ const unitBtns = document.querySelectorAll('.unitBtn');
 
 unitBtns.forEach((btn) => {
   btn.addEventListener('change', () => {
-    console.log(btn.value);
+    //console.log(btn.value);
     unitGroup = btn.value;
     unitSymbol = unitGroup === 'metric' ? '°C' : '°F';
     sunnyDayThreshold = unitGroup === 'metric' ? 20 : 68;

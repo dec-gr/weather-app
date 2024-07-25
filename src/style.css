@@ -212,6 +212,7 @@ input[type='radio'] {
 .weeklyForecastCont {
   display: flex;
   justify-content: space-between;
+  min-width: fit-content;
 }
 
 div {
