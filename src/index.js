@@ -4,9 +4,14 @@ import cloudyDayIcon from './images/cloudyDayAnimated.svg';
 import rainyDayIcon from './images/rainyDayAnimated.svg';
 import rainWithSunIcon from './images/rainWithSunAnimated.svg';
 
+import umbrellaSunIcon from './images/umbrella-sunny.svg';
+import umbrellaRainIcon from './images/umbrella-rainy.svg';
+
 const API_KEY = '';
-const location = 'Dublin';
+let location = 'Dublin';
 let unitGroup = 'metric';
+let unitSymbol = '°C';
+let sunnyDayThreshold = 20;
 
 const getDayFromDate = (dateString) => {
   const date = new Date(dateString);
@@ -18,14 +23,17 @@ const fetchForecast = async (url) => {
     const weatherResponse = await fetch(url, { mode: 'cors' });
     console.log(weatherResponse);
     const weatherJson = await weatherResponse.json();
+    console.log(weatherJson);
+    const resolvedAddress = weatherJson.resolvedAddress;
     const weeklyObj = weatherJson.days.map((x) => ({
       day: getDayFromDate(x.datetime),
+      temp: x.temp,
       max: x.tempmax,
       min: x.tempmin,
       precip: x.precipprob,
       cloud: x.cloudcover,
     }));
-    return weeklyObj;
+    return [weeklyObj, resolvedAddress];
   } catch (err) {
     console.log(err);
     return 'no data';
@@ -33,7 +41,7 @@ const fetchForecast = async (url) => {
 };
 
 const createUrl = (loc, unit, api) =>
-  `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${loc}?unitGroup=${unit}&elements=datetime%2Ctempmax%2Ctempmin%2Ctemp%2Cprecipprob%2Ccloudcover&include=hours%2Cdays&key=${api}&contentType=json`;
+  `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${loc}?unitGroup=${unit}&elements=datetime%2Cname%2Caddress%2CresolvedAddress%2Cdatetime%2Ctempmax%2Ctempmin%2Ctemp%2Cprecipprob%2Ccloudcover&include=hours%2Cdays&key=${api}&contentType=json`;
 
 const getForecastData = async (loc, unit, api) => {
   const url = createUrl(loc, unit, api);
@@ -48,13 +56,14 @@ const getForecastData = async (loc, unit, api) => {
 };
 
 const getForecasts = async (loc, unit, api) => {
-  const forecastObj = await getForecastData(loc, unit, api);
+  const [forecastObj, resolvedAddress] = await getForecastData(loc, unit, api);
   if (forecastObj === 'no data') {
     return;
   }
+  location = resolvedAddress;
   const todaysForecast = forecastObj[0];
   console.log(todaysForecast);
-  const next10days = forecastObj.slice(1, 11);
+  const next10days = forecastObj.slice(1, 8);
   const todaysForecastDiv = document.querySelector('.todayCont');
   if (todaysForecastDiv) {
     todaysForecastDiv.remove();
@@ -62,10 +71,17 @@ const getForecasts = async (loc, unit, api) => {
   addTodaysForecast(
     todaysForecast.day,
     todaysForecast.max,
-    todaysForecast.min,
     todaysForecast.precip,
-    todaysForecast.cloud
+    todaysForecast.temp,
+    resolvedAddress
   );
+  const precipCont = document.querySelector('.precipCont');
+  if (precipCont) {
+    precipCont.remove();
+  }
+
+  addPrecipForecast(todaysForecast.precip);
+
   const futureForecastDivs = document.querySelectorAll('.dayCont');
   if (futureForecastDivs) {
     futureForecastDivs.forEach((day) => day.remove());
@@ -103,6 +119,42 @@ setIcon(dayCont, 'rainyDay');
 
 // dayCont.appendChild(svg);
 
+const createPrecipForecast = (precip) => {
+  const precipCont = document.createElement('div');
+  precipCont.classList.add('precipCont');
+
+  const precipTitle = document.createElement('div');
+  precipTitle.classList.add('precipTitle');
+  precipTitle.textContent = 'Chance of Rain:';
+
+  const precipPercent = document.createElement('div');
+  precipPercent.classList.add('precipPercent');
+  precipPercent.textContent = precip + '%';
+
+  const precipIconCont = document.createElement('div');
+  precipIconCont.classList.add('precipIconCont');
+
+  const precipIcon = document.createElement('img');
+
+  precipIcon.src = precip >= 40 ? umbrellaRainIcon : umbrellaSunIcon;
+  precipIcon.classList.add('precipIcon');
+
+  precipCont.appendChild(precipTitle);
+  precipIconCont.appendChild(precipIcon);
+  precipCont.appendChild(precipIconCont);
+  precipCont.appendChild(precipPercent);
+
+  return precipCont;
+};
+
+const rightSideCont = document.querySelector('.rightSideCont');
+
+const addPrecipForecast = (precip) => {
+  const precipCont = createPrecipForecast(precip);
+  rightSideCont.appendChild(precipCont);
+  console.log(precipCont);
+};
+
 const createDay = (day, max, min, precip) => {
   console.log(precip);
   const dayCont = document.createElement('div');
@@ -114,11 +166,11 @@ const createDay = (day, max, min, precip) => {
 
   const dayMax = document.createElement('div');
   dayMax.classList.add('dayMax');
-  dayMax.textContent = max;
+  dayMax.textContent = max + unitSymbol;
 
   const dayMin = document.createElement('div');
   dayMin.classList.add('dayMin');
-  dayMin.textContent = min;
+  dayMin.textContent = min + unitSymbol;
 
   const iconCont = document.createElement('div');
   iconCont.classList.add('iconCont');
@@ -132,39 +184,52 @@ const createDay = (day, max, min, precip) => {
 
   dayCont.appendChild(dayTitle);
   dayCont.appendChild(dayMax);
-  dayCont.appendChild(dayMin);
   iconCont.appendChild(iconSVG);
-
   dayCont.appendChild(iconCont);
+  dayCont.appendChild(dayMin);
 
   return dayCont;
 };
 
 const todaysForecastCont = document.querySelector('.todaysForecastCont');
 
-const createTodaysForecast = (day, max, min, precip, cloud) => {
+const createTodaysForecast = (
+  day,
+  max,
+  precip,
+  temp = '22.0',
+  location = 'London'
+) => {
   const todayCont = document.createElement('div');
   todayCont.classList.add('todayCont');
+
+  const todayLocation = document.createElement('div');
+  todayLocation.classList.add('todayLocation');
+  todayLocation.textContent = location;
 
   const todayTitle = document.createElement('div');
   todayTitle.classList.add('todayTitle');
   todayTitle.textContent = day;
 
-  const todayMax = document.createElement('div');
-  todayMax.classList.add('todayMax');
-  todayMax.textContent = max;
+  const nowTemp = document.createElement('div');
+  nowTemp.classList.add('nowTemp');
+  nowTemp.textContent = temp + unitSymbol;
 
-  const todayMin = document.createElement('div');
-  todayMin.classList.add('todayMin');
-  todayMin.textContent = min;
+  // const todayMax = document.createElement('div');
+  // todayMax.classList.add('todayMax');
+  // todayMax.textContent = max;
+
+  // const todayMin = document.createElement('div');
+  // todayMin.classList.add('todayMin');
+  // todayMin.textContent = min;
 
   const todayPrecip = document.createElement('div');
   todayPrecip.classList.add('todayPrecip');
   todayPrecip.textContent = precip;
 
-  const todayCloud = document.createElement('div');
-  todayCloud.classList.add('todayCloud');
-  todayCloud.textContent = cloud;
+  // const todayCloud = document.createElement('div');
+  // todayCloud.classList.add('todayCloud');
+  // todayCloud.textContent = cloud;
 
   const iconCont = document.createElement('div');
   iconCont.classList.add('iconCont', 'todayIcon');
@@ -176,12 +241,17 @@ const createTodaysForecast = (day, max, min, precip, cloud) => {
   iconSVG.src = icon;
   iconSVG.classList.add('weatherIcon');
 
-  todayCont.appendChild(todayTitle);
-  todayCont.appendChild(todayMax);
-  todayCont.appendChild(todayMin);
+  todayCont.appendChild(todayLocation);
 
-  todayCont.appendChild(todayPrecip);
-  todayCont.appendChild(todayCloud);
+  todayCont.appendChild(todayTitle);
+
+  todayCont.appendChild(nowTemp);
+
+  //todayCont.appendChild(todayMax);
+  //todayCont.appendChild(todayMin);
+
+  //todayCont.appendChild(todayPrecip);
+  //todayCont.appendChild(todayCloud);
 
   iconCont.appendChild(iconSVG);
   todayCont.appendChild(iconCont);
@@ -190,8 +260,14 @@ const createTodaysForecast = (day, max, min, precip, cloud) => {
   return todayCont;
 };
 
-const addTodaysForecast = (day, max, min, precip, cloud) => {
-  const todayCont = createTodaysForecast(day, max, min, precip, cloud);
+const addTodaysForecast = (day, max, precip, temp, resolvedAddress) => {
+  const todayCont = createTodaysForecast(
+    day,
+    max,
+    precip,
+    temp,
+    resolvedAddress
+  );
 
   console.log(todaysForecastCont);
   todaysForecastCont.appendChild(todayCont);
@@ -207,12 +283,12 @@ const addDay = (day, max, min, precip) => {
 const getIconName = (max, precipProb) => {
   console.log(precipProb);
   if (precipProb >= 40) {
-    if (max >= 20) {
+    if (max >= sunnyDayThreshold) {
       return 'rainWithSun';
     }
     return 'rainyDay';
   }
-  if (max >= 20) {
+  if (max >= sunnyDayThreshold) {
     return 'sunnyDay';
   }
   return 'cloudyDay';
@@ -276,3 +352,15 @@ searchBtn.addEventListener('click', (event) => {
 // };
 
 // makeItRain();
+
+const unitBtns = document.querySelectorAll('.unitBtn');
+
+unitBtns.forEach((btn) => {
+  btn.addEventListener('change', () => {
+    console.log(btn.value);
+    unitGroup = btn.value;
+    unitSymbol = unitGroup === 'metric' ? '°C' : '°F';
+    sunnyDayThreshold = unitGroup === 'metric' ? 20 : 68;
+    getForecasts(location, unitGroup, API_KEY);
+  });
+});

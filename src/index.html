@@ -7,26 +7,78 @@
   </head>
   <body>
     <div class="appcont">
-      <div class="leftSideCont">
-        <div class="todaysForecastCont"></div>
-
-        <div class="searchForm">
-          <form>
-            <p>
+      <div class="todayBanner">
+        <div class="leftSideCont contBackground">
+          <div class="todaysForecastCont">
+            <div class="todayCont">
+              <div class="todayLocation">London</div>
+              <div class="todayTitle">Wednesday</div>
+              <div class="nowTemp">21.1°C</div>
+              <!-- <div class="todayMin">13.2°C</div>
+              <div class="todayPrecip">100%</div>
+              <div class="todayCloud">88.9%</div> -->
+              <div class="iconCont todayIcon">
+                <img
+                  src="http://localhost:8080/images/8c33eccc717e097dc00a.svg"
+                  class="weatherIcon"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="searchForm">
+            <form>
               <input
                 type="text"
                 id="locationSearch"
                 name="locationSearch"
                 placeholder="Search Location"
               />
-            </p>
-            <p>
-              <button id="submit">Submit</button>
-            </p>
-          </form>
+
+              <div id="submit">
+                <svg
+                  focusable="false"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                  ></path>
+                </svg>
+              </div>
+            </form>
+          </div>
+          <div class="toggleBtn">
+            <input
+              id="metric-btn"
+              class="toggle toggle-left unitBtn"
+              name="toggle"
+              value="metric"
+              type="radio"
+              checked
+            />
+            <label for="metric-btn" class="btn">°C</label>
+            <input
+              id="us-btn"
+              class="toggle toggle-right unitBtn"
+              name="toggle"
+              value="us"
+              type="radio"
+            />
+            <label for="us-btn" class="btn">°F</label>
+          </div>
+        </div>
+        <div class="rightSideCont contBackground">
+          <!-- <div class="rainChance">
+            <div class="rainIconCont">
+              <img
+                src="/Users/declangrant/Documents/Repos/Odin/repos/weather-app/src/images/umbrella-rainy.svg"
+                alt=""
+              />
+            </div>
+          </div> -->
         </div>
       </div>
-      <div class="weeklyForecastCont">
+      <div class="weeklyForecastCont contBackground">
         <!-- <div class="sun"></div> -->
         <div class="dayCont">
           <div>Wednesday</div>
