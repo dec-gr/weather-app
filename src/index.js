@@ -7,7 +7,7 @@ import rainWithSunIcon from './images/rainWithSunAnimated.svg';
 import umbrellaSunIcon from './images/umbrella-sunny.svg';
 import umbrellaRainIcon from './images/umbrella-rainy.svg';
 
-const API_KEY = '8MJTB2Z52UL5NMJGFDMWJFHZF';
+const API_KEY = '';
 let location = 'Dublin';
 let unitGroup = 'metric';
 let unitSymbol = '°C';
