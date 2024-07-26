@@ -10,6 +10,7 @@ module.exports = {
       template: './src/index.html',
       filename: 'index.html',
       inject: 'body',
+      favicon: './src/images/blur-drop-water-svgrepo-com.svg',
     }),
     new HtmlWebpackInlineSVGPlugin({
       runPreEmit: true,
