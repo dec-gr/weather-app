@@ -10,11 +10,13 @@ const getIconName = (max, precipProb, sunnyDayThreshold) => {
     if (max >= sunnyDayThreshold) {
       return 'rainWithSun';
     }
+
     return 'rainyDay';
   }
   if (max >= sunnyDayThreshold) {
     return 'sunnyDay';
   }
+
   return 'cloudyDay';
 };
 
@@ -113,7 +115,7 @@ const createPrecipForecast = (precip) => {
   return precipCont;
 };
 
-const createDay = (day, max, min, precip, unitSymbol) => {
+const createDay = (day, max, min, precip, unitSymbol, sunnyDayThreshold) => {
   const dayCont = document.createElement('div');
   dayCont.classList.add('dayCont');
 
@@ -134,7 +136,7 @@ const createDay = (day, max, min, precip, unitSymbol) => {
 
   const iconSVG = document.createElement('img');
 
-  const iconName = getIconName(max, precip);
+  const iconName = getIconName(max, precip, sunnyDayThreshold);
   const icon = getIcon(iconName);
   iconSVG.src = icon;
   iconSVG.classList.add('weatherIcon');
@@ -180,12 +182,19 @@ const updatePrecipForecast = (precip) => {
   rightSideCont.appendChild(precipCont);
 };
 
-const updateWeeklyForecast = (next10days, unitSymbol) => {
+const updateWeeklyForecast = (next10days, unitSymbol, sunnyDayThreshold) => {
   const weeklyForecastCont = document.querySelector('.weeklyForecastCont');
   weeklyForecastCont.innerHTML = '';
 
   next10days.forEach((day) => {
-    const newDay = createDay(day.day, day.max, day.min, day.precip, unitSymbol);
+    const newDay = createDay(
+      day.day,
+      day.max,
+      day.min,
+      day.precip,
+      unitSymbol,
+      sunnyDayThreshold
+    );
     weeklyForecastCont.append(newDay);
   });
 };

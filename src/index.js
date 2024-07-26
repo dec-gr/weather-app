@@ -42,7 +42,7 @@ const updateForecasts = async (loc, unit, api) => {
 
   updatePrecipForecast(todaysForecast.precip);
 
-  updateWeeklyForecast(next10days, unitSymbol);
+  updateWeeklyForecast(next10days, unitSymbol, sunnyDayThreshold);
 };
 
 const initialiseDroplet = () => {
